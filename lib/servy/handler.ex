@@ -29,6 +29,7 @@ defmodule Servy.Handler do
       |> String.split("\n") 
       |> List.first 
       |> String.split(" ")
+    
     %{ method: method, 
        path: path, 
        resp_body: "",
@@ -36,6 +37,25 @@ defmodule Servy.Handler do
      }
   end
   
+  def route(%{ method: "GET", path: "/about" } = conv)  do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join("about.html")
+    |> File.read
+    |> handle_file(conv)
+  end
+
+  def handle_file({:ok, contents}, conv) do
+    %{ conv | status: 200, resp_body: contents }
+  end
+
+  def handle_file({:error, :enoent}, conv) do
+    %{ conv | status: 404, resp_body: "File not found." }
+  end
+
+  def handle_file({:error, reason}, conv) do
+    %{ conv | status: 500, resp_body: "File error #{reason}" }
+  end
+
   def route(%{ method: "GET", path: "/wildthings" } = conv)  do
     %{ conv | status: 200, resp_body: "Bears, Lions, Tigers" }
   end
@@ -114,6 +134,18 @@ IO.puts response
 
 request = """
 GET /bigfoot HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
+
+request = """
+GET /about HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
