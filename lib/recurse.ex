@@ -1,10 +1,16 @@
 defmodule Recurse do
-  def loopy([head | tail]) do
-    IO.puts "Head: #{head} Tail: #{inspect(tail)}"
-    loopy(tail)
+  def sum([head | tail], total) do
+    sum(tail, total + head)
   end
 
-  def loopy([]), do: IO.puts "Done!"
+  def sum([], total), do: total
+
+  def triple([head | tail], list) do
+    triple(tail, list ++ [3 * head])
+  end
+
+  def triple([], list), do: list
 end
 
-Recurse.loopy([1, 2, 3, 4, 5])
+IO.puts "Sum: #{Recurse.sum([1, 2, 3, 4, 5], 0)}"
+IO.puts "Triple: " <> inspect Recurse.triple([1, 2, 3, 4, 5], [])
